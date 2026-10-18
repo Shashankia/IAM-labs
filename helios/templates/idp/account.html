@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Your session at the identity provider</div>
+    <h1>{{ user.display_name }}</h1>
+    <p class="mono">{{ user.username }} · {{ user.department }}</p>
+    <p>Roles: {{ user.roles | join(", ") }}</p>
+    <p>Groups: {{ user.groups | join(", ") }}</p>
+    {% if "idp-admin" in user.roles %}
+      <p><a class="button" href="{{ url_for('admin_home') }}">Open the admin console</a></p>
+    {% else %}
+      <p class="lesson">This account is an employee or HR identity. The admin console belongs to iam.admin. Sign out, then sign in as iam.admin.</p>
+    {% endif %}
+    <p><a class="button secondary" href="{{ url_for('logout') }}">Sign out of the identity provider</a></p>
+  </section>
+{% endblock %}

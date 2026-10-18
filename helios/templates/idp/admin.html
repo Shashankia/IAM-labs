@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block body %}
+{% if page == "dash" %}
+  <section class="card">
+    <div class="kicker">You are the IAM engineer</div>
+    <h1>Helios directory</h1>
+    <p class="lesson">At a job this console is Okta, Microsoft Entra ID, or Keycloak. The buttons have different names. Users, groups, applications, and the sign-in log are the same four places you will live in.</p>
+    <div class="grid">
+      <div><strong>{{ users | length }}</strong><div class="muted">accounts in the directory</div></div>
+      <div><strong>{{ disabled_count }}</strong><div class="muted">disabled, not deleted</div></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>25-minute path</h2>
+    <ol>
+      <li>Stay here and open Applications, then Users. This is project 1's console.</li>
+      <li>Open <a href="{{ portal }}">Leave Portal</a> and sign in as <span class="mono">aisha.khan</span>. Read the token page.</li>
+      <li>Open <a href="{{ payroll }}">Payroll</a> in the same browser. Watch it skip the password.</li>
+      <li>From Leave Portal, open Team Wiki (SAML) and read the assertion.</li>
+      <li>Sign out everywhere. Sign in as <span class="mono">neha.joshi</span>. Type the MFA code. Run the HR story.</li>
+      <li>Sign in as <span class="mono">rahul.mehta</span> and as <span class="mono">sara.fernandes</span> and try Approvals.</li>
+      <li>Use a private window for Kabir's privileged-access request, and this window as Neha to approve it.</li>
+    </ol>
+    <p class="muted">Password for everyone: {{ lab_password }}. The longer notes are in <span class="mono">docs/KAISE-PADHO.md</span>.</p>
+    <form method="post" action="{{ url_for('admin_reset') }}">
+      <button class="secondary" type="submit">Reset the lab to the starting story</button>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Latest log lines</h2>
+    <table>
+      {% for event in recent %}
+        <tr>
+          <td class="mono">{{ event.ts.replace("T", " ").replace("Z", " UTC") }}</td>
+          <td>{{ event_label(event.event) }}<div class="muted mono">{{ event.event }}</div></td>
+          <td>{{ event.actor }} → {{ event.target }}<div class="muted">{{ event.detail }}</div></td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+{% elif page == "users" %}
+  <section class="card">
+    <div class="kicker">Project 1 and 2 · directory</div>
+    <h1>Users</h1>
+    <p class="lesson">Disabled is not deleted. A leaver keeps their history and loses the ability to sign in. A token they already hold still works until it expires.</p>
+    <table>
+      <tr><th>Person</th><th>Department</th><th>Roles</th><th>State</th></tr>
+      {% for user in users %}
+        <tr>
+          <td><a href="{{ url_for('admin_user', username=user.username) }}">{{ user.display_name }}</a><div class="mono muted">{{ user.username }}</div></td>
+          <td>{{ user.department }}</td>
+          <td>{{ user.roles | join(", ") }}</td>
+          <td>{% if user.active %}<span class="pill on">Active</span>{% else %}<span class="pill off">Disabled</span>{% endif %}
+            {% if user.mfa_required %}<span class="pill">MFA</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+  <section class="card">
+    <h2>Create an account by hand</h2>
+    <p class="muted">Use this only when the HR feed is down. The next reconcile will not know this person unless HR hires them too.</p>
+    <form method="post">
+      <div class="split">
+        <div><label>Username</label><input name="username" placeholder="meera.iyer"></div>
+        <div><label>Email</label><input name="email" placeholder="meera.iyer@helios.lab"></div>
+      </div>
+      <div class="split">
+        <div><label>First name</label><input name="first_name"></div>
+        <div><label>Last name</label><input name="last_name"></div>
+      </div>
+      <label>Department</label>
+      <select name="department">{% for name in departments %}<option>{{ name }}</option>{% endfor %}</select>
+      <label>Title</label>
+      <input name="title" placeholder="Contractor">
+      <button type="submit">Create in the directory only</button>
+    </form>
+  </section>
+{% elif page == "user" %}
+  <section class="card">
+    <div class="kicker">{{ person.username }}</div>
+    <h1>{{ person.display_name }}</h1>
+    <p>{{ person.email }} · {{ person.title }} · {{ person.department }}</p>
+    <p>Groups: {{ person.groups | join(", ") or "none" }}</p>
+    <p>{% if person.active %}<span class="pill on">Active</span>{% else %}<span class="pill off">Disabled</span>{% endif %}
+      {% if person.mfa_required %}<span class="pill">MFA required</span>{% endif %}</p>
+    <div class="row">
+      <form method="post">{% if person.active %}<input type="hidden" name="action" value="disable"><button class="danger" type="submit">Disable</button>{% else %}<input type="hidden" name="action" value="enable"><button type="submit">Enable</button>{% endif %}</form>
+      <form method="post">{% if person.mfa_required %}<input type="hidden" name="action" value="mfa_off"><button class="secondary" type="submit">Turn MFA off</button>{% else %}<input type="hidden" name="action" value="mfa_on"><button class="secondary" type="submit">Require MFA</button>{% endif %}</form>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Roles</h2>
+    <p class="muted">A role granted here is not inside anyone's current token. They pick it up at the next sign-in.</p>
+    <table>
+      {% for role in role_catalog %}
+        <tr>
+          <td class="mono">{{ role }}</td>
+          <td>{% if role in person.roles %}<span class="pill on">Has it</span>{% else %}<span class="pill">Does not have it</span>{% endif %}</td>
+          <td>
+            <form method="post">
+              <input type="hidden" name="role" value="{{ role }}">
+              {% if role in person.roles %}
+                <input type="hidden" name="action" value="revoke"><button class="secondary" type="submit">Remove</button>
+              {% else %}
+                <input type="hidden" name="action" value="grant"><button type="submit">Grant</button>
+              {% endif %}
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+{% elif page == "groups" %}
+  <section class="card">
+    <div class="kicker">Project 2 · groups follow department</div>
+    <h1>Groups</h1>
+    <p class="lesson">A mover changes the group. The person's manager role, if they have one, stays. Group is where they sit. Role is what they may do.</p>
+    {% for group in groups %}
+      <h3>{{ group.name }}</h3>
+      {% if group.members %}
+        <p>{% for member in group.members %}<span class="pill {{ 'off' if not member.active else 'on' }}">{{ member.display_name }}</span> {% endfor %}</p>
+      {% else %}
+        <p class="muted">No members.</p>
+      {% endif %}
+    {% endfor %}
+  </section>
+{% elif page == "apps" %}
+  <section class="card">
+    <div class="kicker">Project 1 · application onboarding</div>
+    <h1>Applications</h1>
+    <p class="lesson">Every new app ticket starts here. You register a client id, a protocol, and the exact address the user may return to. If that address is wrong, the error is <span class="mono">redirect_uri mismatch</span>.</p>
+    <p class="muted">Issuer: <span class="mono">{{ issuer }}</span></p>
+    {% for client in clients %}
+      <div class="card">
+        <h2>{{ client.name }}</h2>
+        <p>Protocol: <strong>{{ client.protocol }}</strong></p>
+        <p>Client id / entity id<br><span class="mono">{{ client.client_id }}</span></p>
+        <p>Reply address<br><span class="mono">{{ client.redirect_uri }}</span></p>
+        <p>{% if client.pkce_required %}PKCE is required. The app must prove it started the sign-in.{% else %}This is a SAML app. The browser carries an assertion instead of an OIDC code.{% endif %}</p>
+      </div>
+    {% endfor %}
+  </section>
+{% elif page == "audit" %}
+  <section class="card">
+    <div class="kicker">This is the page you open when a ticket says "I cannot sign in"</div>
+    <h1>Sign-in and audit log</h1>
+    <p class="lesson">Read the newest line first. The log records the event name, who did it, and who it happened to. It does not record passwords, codes, or tokens.</p>
+    <table>
+      <tr><th>When</th><th>Event</th><th>What happened</th></tr>
+      {% for event in events %}
+        <tr>
+          <td class="mono">{{ event.ts.replace("T", " ").replace("Z", " UTC") }}</td>
+          <td>{{ event_label(event.event) }}<div class="muted mono">{{ event.event }}</div></td>
+          <td>{{ event.actor }} → {{ event.target }}<div class="muted">{{ event.detail }}</div></td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+{% elif page == "reviews" %}
+  <section class="card">
+    <div class="kicker">Project 4 · access review</div>
+    <h1>Who still has access</h1>
+    <p class="lesson">Once a quarter, a reviewer looks at standing roles and either keeps them or removes them. This lab lets you revoke only prod-admin, so you cannot lock yourself out of the console. At work, a review can remove ordinary roles too, and break-glass admin accounts are protected separately.</p>
+    <table>
+      <tr><th>Person</th><th>Roles</th><th>Decision</th></tr>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.display_name }}<div class="mono muted">{{ row.username }} · {{ row.department }}</div></td>
+          <td>
+            {% for role in row.roles %}<span class="pill {{ 'off' if role == 'prod-admin' else '' }}">{{ role }}</span> {% endfor %}
+            {% if not row.active %}<span class="pill off">Disabled</span>{% endif %}
+          </td>
+          <td>
+            <form method="post" class="row">
+              <input type="hidden" name="username" value="{{ row.username }}">
+              <button class="secondary" name="decision" value="certify" type="submit">Certify</button>
+              {% if row.has_prod_admin %}
+                <button class="danger" name="decision" value="revoke" type="submit">Revoke prod-admin</button>
+              {% endif %}
+            </form>
+            {% if row.last_review %}<div class="muted">Last: {{ row.last_review.decision }} by {{ row.last_review.reviewer }}</div>{% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+{% endif %}
+{% endblock %}

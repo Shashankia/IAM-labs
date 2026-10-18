@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 4 · just-in-time admin</div>
+    <h1>Privileged access</h1>
+    <p class="lesson">Nobody in the starting story has prod-admin. Kabir asks, Neha approves, the role lives for two minutes, and a worker removes it. That is just-in-time access. A standing admin role that never expires is the thing this flow replaces.</p>
+    {% for note in gaps %}<p class="lesson">{{ note }}</p>{% endfor %}
+    <p>Your token roles: {{ profile.roles | join(", ") }}.</p>
+    <p>Directory roles right now: {{ live.roles | join(", ") if live else "unknown" }}.</p>
+    {% if not can_approve %}
+      <form method="post">
+        <input type="hidden" name="action" value="request">
+        <label for="reason">Why do you need production admin?</label>
+        <textarea id="reason" name="reason" placeholder="Investigate a failed payroll deploy"></textarea>
+        <button type="submit">Request 2 minutes of prod-admin</button>
+      </form>
+      <p class="muted">Stay on this page in this window. In a private window, sign in as neha.joshi and approve the request. Then refresh here.</p>
+    {% endif %}
+  </section>
+  <section class="card">
+    <h2>Requests</h2>
+    <table>
+      <tr><th>Who</th><th>Status</th><th>Reason</th><th></th></tr>
+      {% for item in requests %}
+        <tr>
+          <td class="mono">{{ item.username }}</td>
+          <td>{{ item.status }}{% if item.seconds_left is not none %} · <span class="mono" data-left="{{ item.seconds_left }}">{{ item.seconds_left }}s</span>{% endif %}</td>
+          <td>{{ item.reason }}</td>
+          <td>
+            {% if can_approve and item.status == "pending" %}
+              <form method="post" class="row">
+                <input type="hidden" name="request_id" value="{{ item.id }}">
+                <button name="action" value="approve" type="submit">Approve</button>
+                <button class="secondary" name="action" value="deny" type="submit">Deny</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+  <script>
+    document.querySelectorAll("[data-left]").forEach((node) => {
+      let left = Number(node.dataset.left);
+      const timer = setInterval(() => {
+        left = Math.max(0, left - 1);
+        node.textContent = left + "s";
+        if (left === 0) { clearInterval(timer); setTimeout(() => location.reload(), 2500); }
+      }, 1000);
+    });
+  </script>
+{% endblock %}

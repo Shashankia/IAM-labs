@@ -1,0 +1,23 @@
+{% extends "gate.html" %}
+{% block body %}
+  <h1>Sign in to Helios</h1>
+  {% if sent_by %}
+    <p class="lesson">{{ sent_by }} sent you here. That application does not see the password you type on this page.</p>
+  {% else %}
+    <p class="muted">This is the identity provider. Applications send people here instead of keeping their own passwords.</p>
+  {% endif %}
+  <form method="post">
+    <label for="username">Username</label>
+    <input id="username" name="username" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button type="submit">Continue</button>
+  </form>
+  <p class="lesson">Lab password for every account: <strong class="mono">{{ lab_password }}</strong>. A real sign-in page never prints passwords. This one does so you can try each job.</p>
+  <table>
+    <tr><th>Username</th><th>Who</th><th>Use them when</th></tr>
+    {% for username, who, when in accounts %}
+      <tr><td class="mono">{{ username }}</td><td>{{ who }}</td><td>{{ when }}</td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}

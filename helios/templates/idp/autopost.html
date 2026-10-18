@@ -1,0 +1,10 @@
+{% extends "gate.html" %}
+{% block body %}
+  <h1>Sending the assertion</h1>
+  <p>The identity provider is posting a SAML assertion back to Team Wiki. You do not type anything here.</p>
+  <form id="saml" method="post" action="{{ acs }}">
+    <input type="hidden" name="SAMLResponse" value="{{ saml_response }}">
+    <input type="hidden" name="RelayState" value="{{ relay_state }}">
+    <button type="submit">Continue to Team Wiki</button>
+  </form>
+{% endblock %}

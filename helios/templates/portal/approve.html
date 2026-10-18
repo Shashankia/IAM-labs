@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 3 · policy decides, not a hidden if-statement</div>
+    <h1>Approvals</h1>
+    <p>You are evaluated as <strong>{{ profile.name }}</strong>, department {{ profile.department }}, roles {{ profile.roles | join(", ") }}.</p>
+    <p class="lesson">Allowed only when all three are true: the person has the manager role, the leave is for their own department, and the clock is inside weekday business hours. The same four lines are in <span class="mono">policies/leave.rego</span>.</p>
+    <p>Lab clock used for this decision: <strong>{{ context.clock }}</strong>. Real time in India: {{ context.real_label }}.</p>
+    <div class="row">
+      <a class="button {{ 'secondary' if context.mode != 'weekday' else '' }}" href="{{ url_for('approve_leave', clock='weekday') }}">Pretend Wednesday 11:00</a>
+      <a class="button {{ 'secondary' if context.mode != 'sunday' else '' }}" href="{{ url_for('approve_leave', clock='sunday') }}">Pretend Sunday 21:00</a>
+      <a class="button secondary" href="{{ url_for('approve_leave', clock='real') }}">Use the real clock</a>
+    </div>
+  </section>
+  {% for card in cards %}
+    <section class="card">
+      <h2>{{ card.leave.requester_name }} · {{ card.leave.days }} day(s)</h2>
+      <p>{{ card.leave.reason }}</p>
+      <p class="muted">{{ card.leave.department }}</p>
+      {% for reason in card.decision.reasons %}
+        <p class="{{ 'lesson' if not card.decision.allow else '' }}">{{ reason }}</p>
+      {% endfor %}
+      <details>
+        <summary>The JSON the policy saw</summary>
+        <pre>{{ card.decision.input | tojson(indent=2) }}</pre>
+      </details>
+      {% if card.decision.allow %}
+        <form method="post">
+          <input type="hidden" name="clock" value="{{ context.mode }}">
+          <input type="hidden" name="leave_id" value="{{ card.leave.id }}">
+          <button type="submit">Approve</button>
+        </form>
+      {% endif %}
+    </section>
+  {% else %}
+    <section class="card"><p>No pending requests. Reset the lab from the identity provider dashboard if you want Aisha and Vikram back.</p></section>
+  {% endfor %}
+  {% if history %}
+    <section class="card">
+      <h2>Already decided</h2>
+      <table>
+        {% for item in history %}
+          <tr><td>{{ item.requester_name }}</td><td>{{ item.status }}</td><td>{{ item.decision_notes }}</td></tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+{% endblock %}

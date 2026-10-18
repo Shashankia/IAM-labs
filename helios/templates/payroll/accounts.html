@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 2 · the application's copy</div>
+    <h1>Accounts pushed by SCIM</h1>
+    <p class="lesson">Payroll does not read the HR spreadsheet. The joiner-mover-leaver worker pushes a SCIM user. <span class="mono">active: false</span> means the account remains, and the person should not get in. Open the JSON only after the table is clear. You will see this shape in SailPoint and vendor logs.</p>
+    <p class="muted">The worker's credential is a bearer token, not a person's password. Lab value: <span class="mono">{{ token_hint }}</span>. At work this sits in a secret vault.</p>
+    <table>
+      <tr><th>Login</th><th>Department</th><th>State</th><th>Payload</th></tr>
+      {% for user in users %}
+        <tr>
+          <td class="mono">{{ user.user_name }}<div class="muted">{{ user.email }}</div></td>
+          <td>{{ user.department }}</td>
+          <td>{% if user.active %}<span class="pill on">Active</span>{% else %}<span class="pill off">Inactive</span>{% endif %}</td>
+          <td><details><summary>JSON</summary><pre>{{ user.pretty }}</pre></details></td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+  {% if pushes %}
+    <section class="card">
+      <h2>Related audit lines</h2>
+      <table>
+        {% for event in pushes %}
+          <tr><td class="mono">{{ event.event }}</td><td>{{ event.actor }} → {{ event.target }}</td><td>{{ event.detail }}</td></tr>
+        {% endfor %}
+      </table>
+    </section>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 1 · second application</div>
+    <h1>Payroll</h1>
+    <p>This is a different application from Leave Portal. It trusts the same identity provider. If you already signed in there, in this same browser, Payroll should not ask for a password.</p>
+    <p><a class="button" href="{{ url_for('login') }}">Sign in</a></p>
+    <p class="muted">Do this after Leave Portal, not before. The interesting moment is the blue page that says you are already signed in.</p>
+    <p><a href="{{ url_for('accounts') }}">Look at provisioned accounts without signing in</a></p>
+  </section>
+{% endblock %}

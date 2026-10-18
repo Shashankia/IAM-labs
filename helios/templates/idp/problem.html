@@ -1,0 +1,6 @@
+{% extends "gate.html" %}
+{% block body %}
+  <h1>Sign-in stopped</h1>
+  <p>{{ message }}</p>
+  <p><a class="button secondary" href="{{ url_for('admin_apps') }}">Look at registered applications</a></p>
+{% endblock %}

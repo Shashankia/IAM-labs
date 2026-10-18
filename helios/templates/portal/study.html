@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">How to use this lab</div>
+    <h1>Look at screens and logs</h1>
+    <p>You are practising the IAM engineer seat, not a software-engineer seat. Run each story. Then answer the five questions from memory. Open a code file only if someone asks where a step happens.</p>
+    <ol>
+      <li>Project 1. Sign in, open Payroll without a second password, read the token table, then read one SAML assertion.</li>
+      <li>Project 2. As Neha, hire Meera, transfer Aisha, exit Vikram. Compare the three columns on the HR page. Then open Users in the <a href="{{ idp }}/admin">admin console</a>.</li>
+      <li>Project 3. As Rahul, approve Aisha on the Wednesday clock and refuse her on the Sunday clock. As Sara, approve Vikram and be refused for Aisha.</li>
+      <li>Project 4. As Kabir, request prod-admin. As Neha in a private window, approve it. Refresh Kabir and watch the token stay old. Wait two minutes and watch the role disappear.</li>
+    </ol>
+    <p>Payroll's copy of the accounts is at <a href="{{ payroll }}/accounts">{{ payroll }}/accounts</a>.</p>
+    <p class="muted">Notes, in the order you should read them: <span class="mono">docs/KAISE-PADHO.md</span>, then <span class="mono">docs/01-sso.md</span>, <span class="mono">docs/02-joiner-mover-leaver.md</span>, <span class="mono">docs/03-authorization.md</span>, <span class="mono">docs/04-privileged-access.md</span>.</p>
+  </section>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 2 · this screen is HR, not the identity provider</div>
+    <h1>HR feed</h1>
+    <p class="lesson">Hiring here does not, by itself, type a password into Okta. The worker runs immediately, the way a webhook would, and creates or disables the accounts. Reconcile is the nightly safety net that compares everyone.</p>
+    <p>New hires sign in with <span class="mono">{{ password }}</span>.</p>
+    <table>
+      <tr><th>Person</th><th>HR</th><th>Directory</th><th>Payroll</th></tr>
+      {% for person in people %}
+        <tr>
+          <td>{{ person.first_name }} {{ person.last_name }}<div class="mono muted">{{ person.username }} · {{ person.department }}</div></td>
+          <td>{% if person.active %}<span class="pill on">Active</span>{% else %}<span class="pill off">Left</span>{% endif %}</td>
+          <td>{% if not person.directory_exists %}<span class="pill off">Missing</span>{% elif person.directory_active %}<span class="pill on">Active</span>{% else %}<span class="pill off">Disabled</span>{% endif %}</td>
+          <td>{% if not person.payroll_exists %}<span class="pill off">Missing</span>{% elif person.payroll_active %}<span class="pill on">Active</span>{% else %}<span class="pill off">Inactive</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </table>
+    <form method="post" style="margin-top:12px"><input type="hidden" name="action" value="reconcile"><button class="secondary" type="submit">Run reconcile</button></form>
+  </section>
+  <section class="card">
+    <h2>The story, in order</h2>
+    <div class="grid">
+      <form method="post">
+        <h3>1. Hire</h3>
+        <input type="hidden" name="action" value="hire">
+        <label>First name</label><input name="first_name" value="Meera">
+        <label>Last name</label><input name="last_name" value="Iyer">
+        <label>Email</label><input name="email" value="meera.iyer@helios.lab">
+        <label>Department</label>
+        <select name="department">{% for name in departments %}<option>{{ name }}</option>{% endfor %}</select>
+        <label>Title</label><input name="title" value="Intern">
+        <button type="submit">Hire</button>
+      </form>
+      <form method="post">
+        <h3>2. Transfer</h3>
+        <input type="hidden" name="action" value="transfer">
+        <label>Person</label>
+        <select name="email">
+          {% for person in people if person.active %}
+            <option value="{{ person.email }}" {{ "selected" if person.username == "aisha.khan" else "" }}>{{ person.first_name }} {{ person.last_name }}</option>
+          {% endfor %}
+        </select>
+        <label>New department</label>
+        <select name="department">{% for name in departments %}<option {{ "selected" if name == "Finance" else "" }}>{{ name }}</option>{% endfor %}</select>
+        <button type="submit">Transfer</button>
+      </form>
+      <form method="post">
+        <h3>3. Exit</h3>
+        <input type="hidden" name="action" value="exit">
+        <label>Person</label>
+        <select name="email">
+          {% for person in people if person.active %}
+            <option value="{{ person.email }}" {{ "selected" if person.username == "vikram.rao" else "" }}>{{ person.first_name }} {{ person.last_name }}</option>
+          {% endfor %}
+        </select>
+        <p class="muted">The account stays. It is disabled.</p>
+        <button class="danger" type="submit">Exit</button>
+      </form>
+    </div>
+  </section>
+{% endblock %}

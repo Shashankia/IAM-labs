@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 1 · read this before you read any code</div>
+    <h1>What the token says</h1>
+    <p>A token is a signed snapshot. The application trusts it because the signature matches the identity provider, the issuer is exactly Helios, the audience is Leave Portal, and the expiry is still in the future.</p>
+    <p class="muted">Time left: {{ remaining }} seconds.</p>
+    <table>
+      <tr><th>Claim</th><th>Value</th><th>What it means on the job</th></tr>
+      {% for row in rows %}
+        <tr><td class="mono">{{ row.key }}</td><td class="mono">{{ row.value }}</td><td>{{ row.meaning }}</td></tr>
+      {% endfor %}
+    </table>
+  </section>
+  <section class="card">
+    <h2>The three pieces of the signed token</h2>
+    <p>Header. This says the algorithm is RS256 and names the key.</p>
+    <pre>{{ header }}</pre>
+    <p>Payload. These are the claims in the table above.</p>
+    <pre>{{ payload }}</pre>
+    <p>Signature. You do not read this. The app checks it against the identity provider's public key. If anyone edits the payload, the check fails.</p>
+    <pre>{{ signature }}</pre>
+  </section>
+{% endblock %}

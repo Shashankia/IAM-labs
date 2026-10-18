@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 4 · the quarterly question</div>
+    <h1>Access review</h1>
+    <p class="lesson">Certify means "this access is still right." Revoke removes prod-admin immediately. Employee and manager roles stay, so the company can still operate. The sign-in log records who decided.</p>
+    <table>
+      <tr><th>Person</th><th>Roles</th><th></th></tr>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.display_name }}<div class="mono muted">{{ row.department }}</div></td>
+          <td>{% for role in row.roles %}<span class="pill">{{ role }}</span> {% endfor %}{% if not row.active %}<span class="pill off">Disabled</span>{% endif %}</td>
+          <td>
+            <form method="post" class="row">
+              <input type="hidden" name="username" value="{{ row.username }}">
+              <button class="secondary" name="decision" value="certify" type="submit">Certify</button>
+              {% if row.has_prod_admin %}<button class="danger" name="decision" value="revoke" type="submit">Revoke prod-admin</button>{% endif %}
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+{% endblock %}

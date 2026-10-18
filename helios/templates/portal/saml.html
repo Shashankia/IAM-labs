@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 1 · the same sign-in, an older protocol</div>
+    <h1>Team Wiki received a SAML assertion</h1>
+    <p class="lesson">OIDC sends a token. SAML sends this XML assertion. Companies still have both. Your job is to recognise the same facts: who the person is, which app it was for, and when it stops being valid.</p>
+    <table>
+      <tr><td>NameID</td><td class="mono">{{ result.name_id }}</td><td>Who signed in. Same idea as preferred_username.</td></tr>
+      <tr><td>Issuer</td><td class="mono">{{ result.issuer }}</td><td>Who wrote the assertion. Same idea as iss.</td></tr>
+      <tr><td>Audience</td><td class="mono">{{ result.audience }}</td><td>Which app may accept it. Same idea as aud.</td></tr>
+      <tr><td>Not before</td><td class="mono">{{ result.not_before }}</td><td>Valid from.</td></tr>
+      <tr><td>Not on or after</td><td class="mono">{{ result.not_on_or_after }}</td><td>Expiry. Same idea as exp.</td></tr>
+      <tr><td>InResponseTo</td><td class="mono">{{ result.in_response_to }}</td><td>Ties this assertion to the request the app just sent.</td></tr>
+      <tr><td>Status</td><td class="mono">{{ result.status }}</td><td>Success means the identity provider agreed.</td></tr>
+      {% for attr in result.attributes %}
+        <tr><td>{{ attr.name }}</td><td class="mono">{{ attr["values"] | join(", ") }}</td><td>An attribute. Groups and roles travel this way in SAML.</td></tr>
+      {% endfor %}
+    </table>
+    <p class="lesson">Signature present: {{ "yes" if result.signed else "no" }}. A company identity provider signs this block. The app checks the signature, the audience, and the expiry before it trusts the name. This lab leaves the signature off so you can read the XML.</p>
+    <p class="muted">The request you sent was compressed in the address bar. The response came back as a POST body, base64, not compressed. That difference shows up in interviews.</p>
+    <details>
+      <summary>Read the XML after the table makes sense</summary>
+      <pre>{{ result.xml }}</pre>
+    </details>
+  </section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Project 1 · the application</div>
+    <h1>Leave Portal</h1>
+    <p>This app does not have its own passwords. Sign-in happens at Helios Identity, then you come back here with a token.</p>
+    <p><a class="button" href="{{ url_for('login') }}">Sign in</a></p>
+    <p class="muted">Accounts and the lab password are listed on the identity provider sign-in page at {{ idp }}.</p>
+  </section>
+{% endblock %}

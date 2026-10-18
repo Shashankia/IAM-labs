@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">You are inside a second app</div>
+    <h1>{{ profile.name }}</h1>
+    <p>Payroll accepted a token whose audience is <span class="mono">payroll-viewer</span>. Leave Portal's token would not be the right token for this app. Each application gets its own.</p>
+    <p>Department in this token: {{ profile.department }}. Roles: {{ profile.roles | join(", ") }}.</p>
+    <p><a class="button" href="{{ url_for('accounts') }}">Open the accounts HR provisioned</a></p>
+    <p><a class="button secondary" href="{{ url_for('logout') }}">Sign out of Payroll and the identity provider</a></p>
+    <p class="muted">Leave Portal is still at {{ portal }}. Signing out here also ends the identity provider session, so the next app will ask for a password.</p>
+  </section>
+{% endblock %}

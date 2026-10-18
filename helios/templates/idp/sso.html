@@ -1,0 +1,6 @@
+{% extends "gate.html" %}
+{% block body %}
+  <h1>Already signed in</h1>
+  <p class="lesson">You already have a session at Helios Identity as {{ persona }}. {{ app_name }} did not get your password. It sent you here, this session is still valid, and you are going back with a one-time code. This is single sign-on.</p>
+  <p><a class="button" href="{{ url_for('continue_sign_in') }}">Continue to {{ app_name }}</a></p>
+{% endblock %}

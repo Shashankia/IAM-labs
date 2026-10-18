@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block body %}
+  <section class="card">
+    <div class="kicker">Signed in</div>
+    <h1>{{ profile.name }}</h1>
+    <p class="mono">{{ profile.username }} · token department {{ profile.department }}</p>
+    <p>Token expires in <strong id="left" data-seconds="{{ remaining }}">{{ remaining }}</strong> seconds. You do not need to wait it out. The countdown is the lesson: tokens die.</p>
+    {% for note in gaps %}
+      <p class="lesson">{{ note }}</p>
+    {% endfor %}
+    <div class="steps">
+      <div class="step"><strong>1</strong>Leave Portal sent you away</div>
+      <div class="step"><strong>2</strong>You proved who you are at Helios Identity</div>
+      <div class="step"><strong>3</strong>A one-time code came back</div>
+      <div class="step"><strong>4</strong>The app exchanged it for a token</div>
+      <div class="step"><strong>5</strong>The app read the claims</div>
+    </div>
+    <div class="row">
+      <a class="button" href="{{ payroll }}">Open Payroll in this same browser</a>
+      <a class="button secondary" href="{{ url_for('saml_login') }}">Open Team Wiki with SAML</a>
+    </div>
+    <p class="muted" style="margin-top:12px">Opening Payroll should skip the password if you have not signed out of the identity provider. Use the second button below when you want to become a different person.</p>
+    <div class="row">
+      <a class="button secondary" href="{{ url_for('logout') }}">Log out of Leave Portal only</a>
+      <a class="button secondary" href="{{ url_for('logout_everywhere') }}">Log out everywhere</a>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Token versus the directory right now</h2>
+    <table>
+      <tr><th></th><th>In the token (snapshot)</th><th>In the directory (live)</th></tr>
+      <tr><td>Department</td><td>{{ profile.department }}</td><td>{{ live.department if live else "missing" }}</td></tr>
+      <tr><td>Roles</td><td>{{ profile.roles | join(", ") }}</td><td>{{ live.roles | join(", ") if live else "missing" }}</td></tr>
+      <tr><td>Can sign in</td><td>Already did</td><td>{{ "Yes" if live and live.active else "No, account disabled" }}</td></tr>
+    </table>
+  </section>
+  <script>
+    const node = document.getElementById("left");
+    let left = Number(node.dataset.seconds);
+    setInterval(() => { left = Math.max(0, left - 1); node.textContent = String(left); }, 1000);
+  </script>
+{% endblock %}

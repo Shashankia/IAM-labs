@@ -1,0 +1,12 @@
+{% extends "gate.html" %}
+{% block body %}
+  <h1>Second factor</h1>
+  <p>The password was accepted for <strong>{{ username }}</strong>. This account also requires a 6-digit code that changes every 30 seconds.</p>
+  <p class="lesson">At work this code appears on the employee's phone. The lab prints it here so you can finish the exercise. If the code is rejected, reload the page. It may have just rotated.</p>
+  <p>Current lab code: <strong class="mono" style="font-size: 28px">{{ current_code }}</strong></p>
+  <form method="post">
+    <label for="code">6-digit code</label>
+    <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" required>
+    <button type="submit">Verify</button>
+  </form>
+{% endblock %}

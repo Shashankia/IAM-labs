@@ -1,0 +1,6 @@
+{% extends "gate.html" %}
+{% block body %}
+  <h1>Signed out</h1>
+  <p>The identity provider session is gone. The next application will ask for a password again.</p>
+  <p><a class="button" href="{{ url_for('login') }}">Sign in</a></p>
+{% endblock %}
