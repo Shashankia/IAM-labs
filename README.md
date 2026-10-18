@@ -5,7 +5,8 @@ A local practice company for the work an IAM engineer actually does: sign-in, jo
 You do not need Docker. You need Python 3.12, which is already what this lab was built with.
 
 ```powershell
-cd "C:\Users\shash\Downloads\IAM Project"
+git clone https://github.com/Shashankia/IAM-labs.git
+cd IAM-labs
 powershell -ExecutionPolicy Bypass -File .\start.ps1
 ```
 
@@ -23,7 +24,7 @@ Leave that window open. Then use one browser.
 | Leave Portal | http://127.0.0.1:5001 | The business app employees sign in to |
 | Payroll | http://127.0.0.1:5002 | A second app, plus the accounts pushed by SCIM |
 
-Password for every account: `Helios#2027`
+Lab password for every account: `Helios#2027`
 
 Start as `iam.admin`. That account is you, the IAM engineer.
 
